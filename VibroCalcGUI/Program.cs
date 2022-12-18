@@ -35,32 +35,19 @@ namespace VibroCalcGUI
                 paramValuesString = AgVibroCalcGUI.ConvertToStringArray(paramValues);
                 AgVibroCalcGUI.Call2dGUI(menuItem, paramValuesString, out rowSelected, out colomnSelected, out newValueString);
                 //AgVibroCalcGUI.MenuResult resultGUI = AgVibroCalcGUI.Menu(menuItem, paramValuesString);
-                //row = resultGUI.selectedItem[1];
-                //colomn = resultGUI.selectedItem[0];
                 if (rowSelected < 0 || colomnSelected < 0)
                     continue;
                 CalculateNewValue(paramValues, rowSelected, colomnSelected, newValueString);
             }
             while (rowSelected >= 0 && colomnSelected >= 0);
-            /*
-            do
-            {
 
-                paramValuesString = AgVibroCalcGUI.ConvertToStringArray(paramValues);
-                AgVibroCalcGUI.MenuResult resultGUI = AgVibroCalcGUI.Menu(menuItem, paramValuesString);
-                row = resultGUI.selectedItem[1];
-                colomn = resultGUI.selectedItem[0];
-                if (row < 0 || colomn < 0)
-                    continue;
-                CalculateNewValue(paramValues, row, colomn, resultGUI.newValue);
-            }
-            while (row >= 0 && colomn >= 0);
-            */
-            //=============
+
+            // ==пример линейного меню
+            Console.Clear();
             string[] menuItem2 = { "item 0,0", "item 0,1", "", "item 1,0", "item 1,1" };
             double[] paramValues2 = new double[menuItem2.Length];
             string[] paramValuesString2;
-
+            // ==пример вертикального линейного меню 
             do
             {
                 paramValuesString2 = AgVibroCalcGUI.ConvertToStringArray(paramValues2);
@@ -68,6 +55,8 @@ namespace VibroCalcGUI
                 CalculateNewValue(paramValues2, rowSelected, newValueString);
             }
             while (rowSelected != -1);
+
+            // ==пример горизонтального линейного меню
             Console.Clear();
             menuItem2[2] = "New";
             menuItem2[3] = string.Empty;

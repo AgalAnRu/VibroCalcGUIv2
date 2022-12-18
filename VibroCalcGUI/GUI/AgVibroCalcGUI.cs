@@ -18,6 +18,7 @@ namespace VibroCalcGUI
 
         //private static double[,] resultValue;
         //private static int[] resultXY;
+        /*
         internal struct MenuResult
         {
             internal int[] selectedItem;
@@ -25,6 +26,7 @@ namespace VibroCalcGUI
             internal int colomnSelected;
             internal string newValue;
         }
+        */
         internal static void CallGUIVertical(string[] itemsName, string[] itemsValues, out int selectedItem, out string newValue)
         {
             int colomn = 0;
@@ -45,7 +47,7 @@ namespace VibroCalcGUI
                 MenuItemArray[row, colomn] = itemsName[row];
             }
             PrintTemplateGUI();
-            if (GetSelectedItem2(out selectedItem, out colomn))
+            if (GetSelectedItem(out selectedItem, out colomn))
                 newValue = GetNewValue(selectedItem, colomn);
             return;
         }
@@ -69,54 +71,12 @@ namespace VibroCalcGUI
                 MenuItemArray[row, colomn] = itemsName[colomn];
             }
             PrintTemplateGUI();
-            if (GetSelectedItem2(out row, out selectedItem))
+            if (GetSelectedItem(out row, out selectedItem))
                 newValue = GetNewValue(row, selectedItem);
             return;
         }
-        /* //TO_DEL
-        internal static MenuResult Menu(string[] itemsName, string[] defaultValues, bool isVerticalMenu = true)
-        {
-            MenuResult menuResult = new MenuResult();
-
-            if (itemsName.Length != defaultValues.Length)
-            {
-                Console.WriteLine("Массив пунктов меню не соответствует массиву результатов");
-                menuResult.selectedItem[0] = -1;
-                menuResult.selectedItem[1] = -1;
-                return menuResult;
-            }
-            if (isVerticalMenu)
-            {
-                RowTotal = itemsName.Length;
-                MenuItemArray = new string[RowTotal, 1];
-                ResultValueString = new string[RowTotal, 1];
-                for (int row = 0; row < RowTotal; row++)
-                {
-                    ResultValueString[row, 0] = defaultValues[row].ToString();
-                    MenuItemArray[row, 0] = itemsName[row];
-                }
-            }
-            if (!isVerticalMenu)
-            {
-                ColomnTotal = itemsName.Length;
-                MenuItemArray = new string[1, ColomnTotal];
-                ResultValueString = new string[1, ColomnTotal];
-                for (int colomn = 0; colomn < ColomnTotal; colomn++)
-                {
-                    ResultValueString[0, colomn] = defaultValues[colomn].ToString();
-                    MenuItemArray[0, colomn] = itemsName[colomn];
-                }
-            }
-            PrintTemplateGUI();
-            menuResult.selectedItem = GetSelectedItem();
-            menuResult.newValue = GetNewValue(menuResult.selectedItem);
-            return menuResult;
-        }
-        */
-
         internal static void Call2dGUI(string[,] itemsName, string[,] itemsValues, out int selectedRow, out int selectedColomn, out string newValue)
         {
-            //MenuResult menuResult = new MenuResult();
             newValue = string.Empty;
             if (itemsName.GetLength(0) != itemsValues.GetLength(0) || itemsName.GetLength(1) != itemsValues.GetLength(1))
             {
@@ -130,35 +90,13 @@ namespace VibroCalcGUI
             MenuItemArray = itemsName;
             ResultValueString = itemsValues;
             PrintTemplateGUI();
-            if (!GetSelectedItem2(out selectedRow, out selectedColomn))
+            if (GetSelectedItem(out selectedRow, out selectedColomn))
+            {
                 newValue = GetNewValue(selectedRow, selectedColomn);
+            }
             return;
         }
-        internal static MenuResult Menu(string[,] itemsName, string[,] itemsValues)
-        {
-            MenuResult menuResult = new MenuResult();
-            if (itemsName.GetLength(0) != itemsValues.GetLength(0) || itemsName.GetLength(1) != itemsValues.GetLength(1))
-            {
-                Console.WriteLine("Массив пунктов меню не соответствует массиву результатов");
-                menuResult.selectedItem[0] = -1;
-                menuResult.selectedItem[1] = -1;
-                return menuResult;
-            }
-            ColomnTotal = itemsName.GetLength(1);
-            RowTotal = itemsName.GetLength(0);
-            MenuItemArray = itemsName;
-            ResultValueString = itemsValues;
-            PrintTemplateGUI();
-            //  Test
-            if (!GetSelectedItem2(out menuResult.rowSelected, out menuResult.colomnSelected))
-                return menuResult;
-            menuResult.selectedItem = GetSelectedItem();
-            if (menuResult.selectedItem[0] < 0 || menuResult.selectedItem[1] < 0)
-                return menuResult;
-            menuResult.newValue = GetNewValue(menuResult.selectedItem);
-            return menuResult;
-        }
-        private static bool GetSelectedItem2(out int row, out int colomn)
+        private static bool GetSelectedItem(out int row, out int colomn)
         {
             row = 0;
             colomn = 0;
@@ -194,69 +132,16 @@ namespace VibroCalcGUI
                     Console.CursorVisible = isCursorVisible;
                     return false;
                 }
-            }
-            while (key != ConsoleKey.Escape && key != ConsoleKey.Enter);
-            Console.CursorVisible = isCursorVisible;
-            return true;
-        }
-        private static int[] GetSelectedItem()
-        {
-            int[] selected = new int[] { 0, 0 };
-            int row = 0;
-            int colomn = 0;
-            ConsoleKey key = new ConsoleKey();
-            MoveCursorToResult(row, colomn);
-            bool isCursorVisible = Console.CursorVisible;
-            Console.CursorVisible = false;
-            do
-            {
-                key = Console.ReadKey(true).Key;
-                MoveCursorToResult(row, colomn, cursorHighlighting: false);
-                if (key == ConsoleKey.UpArrow)
+                if (key == ConsoleKey.Enter)
                 {
-                    row = MoveToNextUpCell(row, colomn);
-                }
-                if (key == ConsoleKey.DownArrow)
-                {
-                    row = MoveToNextDownCell(row, colomn);
-                }
-                if (key == ConsoleKey.LeftArrow)
-                {
-                    colomn = MoveToNextLeftCell(row, colomn);
-                }
-                if (key == ConsoleKey.RightArrow)
-                {
-                    colomn = MoveToNextRightCell(row, colomn);
-                }
-                MoveCursorToResult(row, colomn);
-                if (key == ConsoleKey.Escape)
-                {
-                    colomn = -1;
-                    row = -1;
+                    Console.CursorVisible = isCursorVisible;
+                    return true;
                 }
             }
-            while (key != ConsoleKey.Escape && key != ConsoleKey.Enter);
-            selected[0] = colomn;
-            selected[1] = row;
-            Console.CursorVisible = isCursorVisible;
-            return selected;
+            while (true);
         }
         private static string GetNewValue(int row, int colomn)
         {
-            int x = StartPositionX + colomn * CellWidth + 2;
-            int y = StartPositionY + row * СellHeight + 2;
-            MoveCursorToPositionXY(x, y);
-            int valueStringWidth = CellWidth - SpaceBetweenWordsX;
-            string resultLine = String.Empty.PadLeft(valueStringWidth, ' ');
-            Console.Write(resultLine);
-            MoveCursorToPositionXY(x + valueStringWidth - 1, y);
-            return GetFixedLengthString(valueStringWidth);
-        }
-        private static string GetNewValue(int[] rowColomn)
-        {
-
-            int row = rowColomn[1];
-            int colomn = rowColomn[0];
             int x = StartPositionX + colomn * CellWidth + 2;
             int y = StartPositionY + row * СellHeight + 2;
             MoveCursorToPositionXY(x, y);
@@ -378,11 +263,6 @@ namespace VibroCalcGUI
             Console.CursorLeft = x;
             Console.CursorTop = y;
         }
-        private static void MoveCursorToPositionXY(int[] xy)
-        {
-            Console.CursorLeft = xy[1];
-            Console.CursorTop = xy[0];
-        }
         private static void MoveCursorToCellTopLeft(int row, int colomn)
         {
             int x = StartPositionX + colomn * CellWidth;
@@ -428,6 +308,93 @@ namespace VibroCalcGUI
             for (int i = 0; i < values.Length; i++)
                 strValues[i] = values[i].ToString();
             return strValues;
+        }
+        //===ToDel
+        /* //ToDel
+        internal static MenuResult Menu(string[,] itemsName, string[,] itemsValues)
+        {
+            MenuResult menuResult = new MenuResult();
+            if (itemsName.GetLength(0) != itemsValues.GetLength(0) || itemsName.GetLength(1) != itemsValues.GetLength(1))
+            {
+                Console.WriteLine("Массив пунктов меню не соответствует массиву результатов");
+                menuResult.selectedItem[0] = -1;
+                menuResult.selectedItem[1] = -1;
+                return menuResult;
+            }
+            ColomnTotal = itemsName.GetLength(1);
+            RowTotal = itemsName.GetLength(0);
+            MenuItemArray = itemsName;
+            ResultValueString = itemsValues;
+            PrintTemplateGUI();
+            //  Test
+            if (!GetSelectedItem2(out menuResult.rowSelected, out menuResult.colomnSelected))
+                return menuResult;
+            menuResult.selectedItem = GetSelectedItem();
+            if (menuResult.selectedItem[0] < 0 || menuResult.selectedItem[1] < 0)
+                return menuResult;
+            menuResult.newValue = GetNewValue(menuResult.selectedItem);
+            return menuResult;
+        }
+        */
+        private static string GetNewValue(int[] rowColomn)
+        {
+            int row = rowColomn[1];
+            int colomn = rowColomn[0];
+            int x = StartPositionX + colomn * CellWidth + 2;
+            int y = StartPositionY + row * СellHeight + 2;
+            MoveCursorToPositionXY(x, y);
+            int valueStringWidth = CellWidth - SpaceBetweenWordsX;
+            string resultLine = String.Empty.PadLeft(valueStringWidth, ' ');
+            Console.Write(resultLine);
+            MoveCursorToPositionXY(x + valueStringWidth - 1, y);
+            return GetFixedLengthString(valueStringWidth);
+        }
+        private static void MoveCursorToPositionXY(int[] xy)
+        {
+            Console.CursorLeft = xy[1];
+            Console.CursorTop = xy[0];
+        }
+        private static int[] GetSelectedItem1()
+        {
+            int[] selected = new int[] { 0, 0 };
+            int row = 0;
+            int colomn = 0;
+            ConsoleKey key = new ConsoleKey();
+            MoveCursorToResult(row, colomn);
+            bool isCursorVisible = Console.CursorVisible;
+            Console.CursorVisible = false;
+            do
+            {
+                key = Console.ReadKey(true).Key;
+                MoveCursorToResult(row, colomn, cursorHighlighting: false);
+                if (key == ConsoleKey.UpArrow)
+                {
+                    row = MoveToNextUpCell(row, colomn);
+                }
+                if (key == ConsoleKey.DownArrow)
+                {
+                    row = MoveToNextDownCell(row, colomn);
+                }
+                if (key == ConsoleKey.LeftArrow)
+                {
+                    colomn = MoveToNextLeftCell(row, colomn);
+                }
+                if (key == ConsoleKey.RightArrow)
+                {
+                    colomn = MoveToNextRightCell(row, colomn);
+                }
+                MoveCursorToResult(row, colomn);
+                if (key == ConsoleKey.Escape)
+                {
+                    colomn = -1;
+                    row = -1;
+                }
+            }
+            while (key != ConsoleKey.Escape && key != ConsoleKey.Enter);
+            selected[0] = colomn;
+            selected[1] = row;
+            Console.CursorVisible = isCursorVisible;
+            return selected;
         }
     }
 }
