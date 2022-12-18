@@ -16,6 +16,11 @@ namespace VibroCalcGUI
         private const int SpaceBetweenWordsX = 3;
         private static string[,] ResultValueString;
         private static string NewValueFirstSimbol = string.Empty;
+        internal static void SetStartPositionXY(int x, int y)
+        {
+            StartPositionX = x;
+            StartPositionY = y;
+        }
 
         internal static void CallGUIVertical(string[] itemsName, string[] itemsValues, out int selectedItem, out string newValue)
         {
@@ -301,7 +306,7 @@ namespace VibroCalcGUI
             if (cursorHighlighting)
                 InvertColor();
         }
-        private static int[] GetCursorPozitionXY()
+        internal static int[] GetCursorPozitionXY()
         {
             int[] xy = new int[2];
             xy[0] = Console.CursorTop;

@@ -44,6 +44,7 @@ namespace VibroCalcGUI
 
             // ==пример линейного меню
             Console.Clear();
+            AgVibroCalcGUI.SetStartPositionXY(30, 2);
             string[] menuItem2 = { "item 0,0", "item 0,1", "", "item 1,0", "item 1,1" };
             double[] paramValues2 = new double[menuItem2.Length];
             string[] paramValuesString2;
@@ -58,6 +59,7 @@ namespace VibroCalcGUI
 
             // ==пример горизонтального линейного меню
             Console.Clear();
+            AgVibroCalcGUI.SetStartPositionXY(5, 10);
             menuItem2[2] = "New";
             menuItem2[3] = string.Empty;
             do
