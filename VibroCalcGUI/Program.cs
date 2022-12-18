@@ -34,7 +34,7 @@ namespace VibroCalcGUI
             AgVibroCalcGUI.Call2dGUI(menuItem2, paramValues2, methodsSetValue2, methodsGetValue2);
             // == Конец Примера 1 ==
 
-            // == Пример 2  == (использование без делегатов. Требуется блок логики GUI и блок расчётов)
+            // == Пример 2  == (использование без делегатов. Требуется блок логики GUI и блок расчётов. GUI используется только для ввода вывода string)
             string[,] menuItem = { { "item 0,0", "item 0,1", "",  "" },
                                    { "item 1,0", "item 1,1", "",  "" },
                                    { "", "", "", ""},
@@ -59,7 +59,7 @@ namespace VibroCalcGUI
             while (rowSelected >= 0 && colomnSelected >= 0);
             //== Конец Примера 2 ==
 
-            // == Пример 3 и Пример 4 == (Аналогично примеру 2. Вывод меню либо в одну строку, либо в один столбец
+            // == Пример 3 и Пример 4 == (Упрощённый пример 2. Вывод меню либо в одну строку, либо в один столбец)
             Console.Clear();
             AgVibroCalcGUI.SetStartPositionXY(30, 2);
             string[] menuItem3 = { "item 0,0", "item 0,1", "", "item 1,0", "item 1,1" };
