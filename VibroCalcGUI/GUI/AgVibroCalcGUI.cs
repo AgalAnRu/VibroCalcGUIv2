@@ -15,6 +15,7 @@ namespace VibroCalcGUI
         private static readonly int СellHeight = 3;
         private const int SpaceBetweenWordsX = 3;
         private static string[,] ResultValueString;
+        private static string NewValueFirstSimbol = string.Empty;
 
         internal static void CallGUIVertical(string[] itemsName, string[] itemsValues, out int selectedItem, out string newValue)
         {
@@ -37,7 +38,11 @@ namespace VibroCalcGUI
             }
             PrintTemplateGUI();
             if (GetSelectedItem(out selectedItem, out colomn))
+            {
                 newValue = GetNewValue(selectedItem, colomn);
+                if (newValue == string.Empty)
+                    newValue = itemsValues[selectedItem];
+            }
             return;
         }
         internal static void CallGUIHorizontal(string[] itemsName, string[] itemsValues, out int selectedItem, out string newValue)
@@ -61,7 +66,11 @@ namespace VibroCalcGUI
             }
             PrintTemplateGUI();
             if (GetSelectedItem(out row, out selectedItem))
+            {
                 newValue = GetNewValue(row, selectedItem);
+                if (newValue == string.Empty)
+                    newValue = itemsValues[selectedItem];
+            }
             return;
         }
         internal static void Call2dGUI(string[,] itemsName, string[,] itemsValues, out int selectedRow, out int selectedColomn, out string newValue)
@@ -82,6 +91,8 @@ namespace VibroCalcGUI
             if (GetSelectedItem(out selectedRow, out selectedColomn))
             {
                 newValue = GetNewValue(selectedRow, selectedColomn);
+                if (newValue == string.Empty)
+                    newValue = itemsValues[selectedRow, selectedColomn];
             }
             return;
         }
@@ -89,13 +100,13 @@ namespace VibroCalcGUI
         {
             row = 0;
             colomn = 0;
-            ConsoleKey key = new ConsoleKey();
             PrintItemValueToCell(row, colomn);
             bool isCursorVisible = Console.CursorVisible;
             Console.CursorVisible = false;
             do
             {
-                key = Console.ReadKey(true).Key;
+                ConsoleKeyInfo cki = Console.ReadKey(true);
+                ConsoleKey key = cki.Key;
                 PrintItemValueToCell(row, colomn, cursorHighlighting: false);
                 if (key == ConsoleKey.UpArrow)
                 {
@@ -123,6 +134,13 @@ namespace VibroCalcGUI
                 }
                 if (key == ConsoleKey.Enter)
                 {
+                    NewValueFirstSimbol = string.Empty;
+                    Console.CursorVisible = isCursorVisible;
+                    return true;
+                }
+                if (Char.IsDigit(cki.KeyChar))
+                {
+                    NewValueFirstSimbol = cki.KeyChar.ToString();
                     Console.CursorVisible = isCursorVisible;
                     return true;
                 }
@@ -135,14 +153,14 @@ namespace VibroCalcGUI
             int y = StartPositionY + row * СellHeight + 2;
             MoveCursorToPositionXY(x, y);
             int valueStringWidth = CellWidth - SpaceBetweenWordsX;
-            string resultLine = String.Empty.PadLeft(valueStringWidth, ' ');
+            string resultLine = NewValueFirstSimbol.PadLeft(valueStringWidth - 1, ' ') + " ";
             Console.Write(resultLine);
             MoveCursorToPositionXY(x + valueStringWidth - 1, y);
             return GetFixedLengthString(valueStringWidth);
         }
         private static string GetFixedLengthString(int length)
         {
-            string str = String.Empty;
+            string str = NewValueFirstSimbol;
             int[] xy = GetCursorPozitionXY();
             ConsoleKeyInfo cki;
             do
@@ -154,7 +172,7 @@ namespace VibroCalcGUI
                     return string.Empty;
                 str += cki.KeyChar;
                 MoveCursorToPositionXY(xy[1] - str.Length, xy[0]);
-                Console.Write(str);
+                Console.Write(str + " ");
                 MoveCursorToPositionXY(xy[1], xy[0]);
             }
             while (str.Length != length);
@@ -292,13 +310,7 @@ namespace VibroCalcGUI
         }
         private static void InvertColor()
         {
-            /*
-            ConsoleColor color = Console.BackgroundColor;
-            Console.BackgroundColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            */
             (Console.BackgroundColor, Console.ForegroundColor) = (Console.ForegroundColor, Console.BackgroundColor);
-
         }
         internal static string[,] ConvertToStringArray(double[,] values)
         {
