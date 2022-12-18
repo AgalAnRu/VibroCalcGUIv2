@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace VibroCalcGUI
 {
     internal class AgVibroCalcGUI
     {
-
+        internal delegate double Method();
+        internal delegate void Method2(double value);
         private static int StartPositionX = 5;
         private static int StartPositionY = 1;
         private static string[,] MenuItemArray;
@@ -16,12 +16,76 @@ namespace VibroCalcGUI
         private const int SpaceBetweenWordsX = 3;
         private static string[,] ResultValueString;
         private static string NewValueFirstSimbol = string.Empty;
+
         internal static void SetStartPositionXY(int x, int y)
         {
             StartPositionX = x;
             StartPositionY = y;
         }
-
+        internal static void Call2dGUI(string[,] itemsName, double[,] itemsValues, Method2[,] methodsSetValue, Method[,] methodsGetValue)
+        {
+            if (!IsInputParamsCorrect(itemsName, itemsValues, methodsSetValue, methodsGetValue))
+                return;
+            string newValueString = string.Empty;
+            int selectedRow = 0;
+            int selectedColomn = 0;
+            do
+            {
+                ResultValueString = ConvertToStringArray(itemsValues);
+                Call2dGUI(itemsName, ResultValueString, out selectedRow, out selectedColomn, out newValueString);
+                if (double.TryParse(newValueString, out double newValue))
+                {
+                    itemsValues[selectedRow, selectedColomn] = newValue;
+                    methodsSetValue[selectedRow, selectedColomn](newValue);
+                    for (int row = 0; row < methodsGetValue.GetLength(0); row++)
+                    {
+                        for (int colomn = 0; colomn < methodsGetValue.GetLength(1); colomn++)
+                            itemsValues[row, colomn] = methodsGetValue[row, colomn]();
+                    }
+                }
+            }
+            while (selectedRow != -1 && selectedColomn != -1);
+        }
+        internal static void Call2dGUI(string[,] itemsName, string[,] itemsValues, out int selectedRow, out int selectedColomn, out string newValue)
+        {
+            newValue = string.Empty;
+            if (itemsName.GetLength(0) != itemsValues.GetLength(0) || itemsName.GetLength(1) != itemsValues.GetLength(1))
+            {
+                Console.WriteLine("Массив пунктов меню не соответствует массиву результатов");
+                selectedRow = -1;
+                selectedColomn = -1;
+                return;
+            }
+            ColomnTotal = itemsName.GetLength(1);
+            RowTotal = itemsName.GetLength(0);
+            MenuItemArray = itemsName;
+            ResultValueString = itemsValues;
+            PrintTemplateGUI();
+            if (GetSelectedItem(out selectedRow, out selectedColomn))
+            {
+                newValue = GetNewValue(selectedRow, selectedColomn);
+                if (newValue == string.Empty)
+                    newValue = itemsValues[selectedRow, selectedColomn];
+            }
+            return;
+        }
+        private static bool IsInputParamsCorrect(string[,] itemsName, double[,] itemsValues, Method2[,] methodsSetValue, Method[,] methodsGetValue)
+        {
+            int[] length1 = { itemsName.GetLength(0), itemsValues.GetLength(0), methodsSetValue.GetLength(0), methodsGetValue.GetLength(0) };
+            int[] length2 = { itemsName.GetLength(1), itemsValues.GetLength(1), methodsSetValue.GetLength(1), methodsGetValue.GetLength(1) };
+            for (int i = 0; i < length1.Length - 1; i++)
+            {
+                for (int j = i + 1; j < length1.Length; j++)
+                {
+                    if (length1[i] != length1[j] || length2[i] != length2[j])
+                    {
+                        Console.WriteLine("Входные параметры некорретны");
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         internal static void CallGUIVertical(string[] itemsName, string[] itemsValues, out int selectedItem, out string newValue)
         {
             int colomn = 0;
@@ -75,29 +139,6 @@ namespace VibroCalcGUI
                 newValue = GetNewValue(row, selectedItem);
                 if (newValue == string.Empty)
                     newValue = itemsValues[selectedItem];
-            }
-            return;
-        }
-        internal static void Call2dGUI(string[,] itemsName, string[,] itemsValues, out int selectedRow, out int selectedColomn, out string newValue)
-        {
-            newValue = string.Empty;
-            if (itemsName.GetLength(0) != itemsValues.GetLength(0) || itemsName.GetLength(1) != itemsValues.GetLength(1))
-            {
-                Console.WriteLine("Массив пунктов меню не соответствует массиву результатов");
-                selectedRow = -1;
-                selectedColomn = -1;
-                return;
-            }
-            ColomnTotal = itemsName.GetLength(1);
-            RowTotal = itemsName.GetLength(0);
-            MenuItemArray = itemsName;
-            ResultValueString = itemsValues;
-            PrintTemplateGUI();
-            if (GetSelectedItem(out selectedRow, out selectedColomn))
-            {
-                newValue = GetNewValue(selectedRow, selectedColomn);
-                if (newValue == string.Empty)
-                    newValue = itemsValues[selectedRow, selectedColomn];
             }
             return;
         }
@@ -332,106 +373,5 @@ namespace VibroCalcGUI
                 strValues[i] = values[i].ToString();
             return strValues;
         }
-        //===ToDel
-        /* //ToDel
-        
-        private static int MoveToNextUpCell(int row, int colomn)
-        {
-            int rowNext = row;
-            do
-            {
-                rowNext--;
-                if (rowNext < 0)
-                    return row;
-            }
-            while (MenuItemArray[rowNext, colomn] == String.Empty);
-            return rowNext;
-        }
-        internal static MenuResult Menu(string[,] itemsName, string[,] itemsValues)
-        {
-            MenuResult menuResult = new MenuResult();
-            if (itemsName.GetLength(0) != itemsValues.GetLength(0) || itemsName.GetLength(1) != itemsValues.GetLength(1))
-            {
-                Console.WriteLine("Массив пунктов меню не соответствует массиву результатов");
-                menuResult.selectedItem[0] = -1;
-                menuResult.selectedItem[1] = -1;
-                return menuResult;
-            }
-            ColomnTotal = itemsName.GetLength(1);
-            RowTotal = itemsName.GetLength(0);
-            MenuItemArray = itemsName;
-            ResultValueString = itemsValues;
-            PrintTemplateGUI();
-            //  Test
-            if (!GetSelectedItem2(out menuResult.rowSelected, out menuResult.colomnSelected))
-                return menuResult;
-            menuResult.selectedItem = GetSelectedItem();
-            if (menuResult.selectedItem[0] < 0 || menuResult.selectedItem[1] < 0)
-                return menuResult;
-            menuResult.newValue = GetNewValue(menuResult.selectedItem);
-            return menuResult;
-        }
-        private static string GetNewValue(int[] rowColomn)
-        {
-            int row = rowColomn[1];
-            int colomn = rowColomn[0];
-            int x = StartPositionX + colomn * CellWidth + 2;
-            int y = StartPositionY + row * СellHeight + 2;
-            MoveCursorToPositionXY(x, y);
-            int valueStringWidth = CellWidth - SpaceBetweenWordsX;
-            string resultLine = String.Empty.PadLeft(valueStringWidth, ' ');
-            Console.Write(resultLine);
-            MoveCursorToPositionXY(x + valueStringWidth - 1, y);
-            return GetFixedLengthString(valueStringWidth);
-        }
-        private static void MoveCursorToPositionXY(int[] xy)
-        {
-            Console.CursorLeft = xy[1];
-            Console.CursorTop = xy[0];
-        }
-        private static int[] GetSelectedItem1()
-        {
-            int[] selected = new int[] { 0, 0 };
-            int row = 0;
-            int colomn = 0;
-            ConsoleKey key = new ConsoleKey();
-            MoveCursorToResult(row, colomn);
-            bool isCursorVisible = Console.CursorVisible;
-            Console.CursorVisible = false;
-            do
-            {
-                key = Console.ReadKey(true).Key;
-                MoveCursorToResult(row, colomn, cursorHighlighting: false);
-                if (key == ConsoleKey.UpArrow)
-                {
-                    row = MoveToNextUpCell(row, colomn);
-                }
-                if (key == ConsoleKey.DownArrow)
-                {
-                    row = MoveToNextDownCell(row, colomn);
-                }
-                if (key == ConsoleKey.LeftArrow)
-                {
-                    colomn = MoveToNextLeftCell(row, colomn);
-                }
-                if (key == ConsoleKey.RightArrow)
-                {
-                    colomn = MoveToNextRightCell(row, colomn);
-                }
-                MoveCursorToResult(row, colomn);
-                if (key == ConsoleKey.Escape)
-                {
-                    colomn = -1;
-                    row = -1;
-                }
-            }
-            while (key != ConsoleKey.Escape && key != ConsoleKey.Enter);
-            selected[0] = colomn;
-            selected[1] = row;
-            Console.CursorVisible = isCursorVisible;
-            return selected;
-        }
-        
-        */
     }
 }
